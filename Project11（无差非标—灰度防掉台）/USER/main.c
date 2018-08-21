@@ -4,6 +4,7 @@
 创建日期：2018.8.8
 维护人：戴镇原
 维护日期：2018.8.8
+维护日期：2018.8.18，改善建议：1、增加车载端本地灰度初始化（显示屏+按键）；2、调试边角处理；3、调试边沿处理改进（边沿后退旋转时若周围检测到敌方就立即进攻）；
 描述：机器人对抗赛程序
 ****************************************/
 #include "delay.h"
@@ -24,23 +25,36 @@
 #define speed4      898      //边沿后退
 #define speed5      650      //边沿旋转
 #define speed6		  400      //（非安全区）巡逻
+//#define speed7		  550      //边角旋转
+//#define speed8		  898      //边角后退
+#define speed9			100      //刹车
 //延时宏定义
 #define t1		      300      //边沿后退
 #define t2          180      //边沿旋转
 #define t3          600      //检测旋转
 #define t4          450      //边沿后退（进攻时）
+//#define t5		      400      //边角旋转
+//#define t6		      300      //边角后退
+#define t7		      5        //刹车
 //灰度阈值宏定义
 #define V1 1750							 //前——安全区
-#define V2 2300              //前——边沿
 #define V3 1450              //后左——安全区
 #define V4 1450							 //后右——安全区
+#define V2 2300              //前——边沿
 #define V5 1850              //后左——边沿
 #define V6 1850							 //后右——边沿
-  //灰度差值
+//#define V7 3010              //前——边角
+//#define V8 2500							 //后左——边角
+//#define V9 2100							 //后右——边角
+//灰度差值宏定义
 #define f1 5
 #define f2 5
 #define f3 5
 #define f4 5
+//#define f5 5
+//#define f6 5
+//#define f7 5
+//#define f8 5
 //AD(灰度)宏定义
 #define AVERAGE_TIMES 2
 #define a Get_Adc_Average(0,AVERAGE_TIMES)//前——灰度
@@ -70,6 +84,29 @@ int main(void)
 			//台边（含三种情况，分别为车靠近场地左边、右边、中间）
 			if(a > V2)
 			{
+				  //边角1
+//				if((a > V7 && b > V8) && b - c > f1)
+//				{
+//					move(-speed7,speed7);
+//					delay_ms(t5);
+//					move(-speed8,-speed8);
+//					delay_ms(t6);
+//					move(speed9,speed9);
+//					delay_ms(t7);
+//					f = !f;
+//				}
+//				//边角2
+//				else if((a > V7 && c > V9) && b - c < f1)
+//				{
+//					move(speed7,-speed7);
+//					delay_ms(t5);
+//					move(-speed8,-speed8);
+//					delay_ms(t6);
+//					move(speed9,speed9);
+//					delay_ms(t7);
+//					f = !f;
+//				}
+				//else if(a > V2 && b - c > f1)
 				//靠左
 				if(a > V2 && b - c > f1)
 				{
@@ -79,19 +116,26 @@ int main(void)
 						{
 							move(-speed4,-speed4);
 							//前面检测到敌人进攻时到边沿，速度较大，后退时间更长
+							//防出区域动作时若周围检测到敌方，立即终止动作检测进攻
+//							for(i = 0;i < t4 && io2 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t4);
 						}
 						else
 						{
 							move(-speed4,-speed4);
 							//反之较短
+//							for(i = 0;i < t1 && io2 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t1);
 						}
 						//刹车
-						move(0,0);
-						delay_ms(5);
+						move(speed9,speed9);
+						delay_ms(t7);
 						//后退后旋转
 						move(-speed5,speed5);
+//						for(i = 0;i < t2 && io2 && io3 && io4;i++)
+//							delay_ms(1);	
 						delay_ms(t2);		
 						//换向标志
 						f = !f;						
@@ -105,16 +149,22 @@ int main(void)
 						if((!io1)||(!io2))
 						{
 							move(-speed4,-speed4);
+//							for(i = 0;i < t4 && io2 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t4);
 						}
 						else
 						{
 							move(-speed4,-speed4);
+//							for(i = 0;i < t1 && io2 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t1);
 						}
-						move(0,0);
-						delay_ms(5);
+						move(speed9,speed9);
+						delay_ms(t7);
 						move(speed5,-speed5);
+//						for(i = 0;i < t2 && io2 && io3 && io4;i++)
+//							delay_ms(1);	
 						delay_ms(t2);
 						f = !f;	
 					}
@@ -127,15 +177,19 @@ int main(void)
 						if((!io1)||(!io2))
 						{
 							move(-speed4,-speed4);
+//							for(i = 0;i < t4 && io2 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t4);
 						}
 						else
 						{
 							move(-speed4,-speed4);
+//							for(i = 0;i < t1 && io2 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t1);
 						}
-						move(0,0);
-						delay_ms(5);
+						move(speed9,speed9);
+						delay_ms(t7);
 						f = !f;	
 					}
 				}
@@ -159,7 +213,7 @@ int main(void)
 				{
 					move(-speed3,speed3+50);
 					//（可控）检测旋转（旋转过程中若前|后检测到就立即进攻，未检测到则转到最大角度）
-					for(i=0;(i<t3)&&io1&&io2;i++)
+					for(i = 0;i < t3 && io1 && io2;i++)
 						delay_ms(1); 
 					if(!io1)
 					{
@@ -173,7 +227,7 @@ int main(void)
 				else if(!io4)					//右 
 				{
 					move(speed3+50,-speed3);
-					for(i=0;(i<t3)&&io1;i++)
+					for(i = 0;i < t3 && io1 && io2;i++)
 						delay_ms(1);
 					if(!io1)
 					{
@@ -214,7 +268,7 @@ int main(void)
 				else if(!io3)  			 //左                        	  
 				{
 					move(speed3+50,-speed3);
-					for(i=0;(i<t3)&&io1&&io2;i++)
+					for(i = 0;i < t3 && io1 && io2;i++)
 						delay_ms(1); 
 					if(!io1)
 					{
@@ -228,7 +282,7 @@ int main(void)
 				else if(!io4)					//右 
 				{
 					move(-speed3,speed3+50);
-					for(i=0;(i<t3)&&io1;i++)
+					for(i = 0;i < t3 && io1 && io2;i++)
 						delay_ms(1);
 					if(!io1)
 					{
@@ -257,6 +311,25 @@ int main(void)
 			//台边
 			if(b > V5 || c > V6)
 			{
+//				if((a > V7 && c > V9) && b - c < f1)
+//				{
+//					move(-speed7,speed7);
+//					delay_ms(t5);
+//					move(speed8,speed8);
+//					delay_ms(t6);
+//					move(-speed9,-speed9);
+//					delay_ms(t7);
+//				}
+//				else if((a > V7 && b > V8) && b - c > f1)
+//				{
+//					move(speed7,-speed7);
+//					delay_ms(t5);
+//					move(speed8,speed8);
+//					delay_ms(t6);
+//					move(-speed9,-speed9);
+//					delay_ms(t7);
+//				}
+//				else if((b > V5 || c > V6) && b - c > f3)
 				if((b > V5 || c > V6) && b - c > f3)
 				{
 					if(b > a || c > a)
@@ -264,16 +337,22 @@ int main(void)
 						if((!io1)||(!io2))
 						{
 							move(speed4,speed4);
+//							for(i=0;i < t4 && io1 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t4);
 						}
 						else
 						{
 							move(speed4,speed4);
+//							for(i=0;i < t1 && io1 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t1);
 						}
-						move(0,0);
-						delay_ms(5);
+						move(-speed9,-speed9);
+						delay_ms(t7);
 						move(speed5,-speed5);
+//						for(i=0;i < t2 && io1 && io3 && io4;i++)
+//							delay_ms(1);
 						delay_ms(t2);	
 						f = !f;
 					}						
@@ -285,16 +364,22 @@ int main(void)
 						if((!io1)||(!io2))
 						{
 							move(speed4,speed4);
+//							for(i=0;i < t4 && io1 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t4);
 						}
 						else
 						{
 							move(speed4,speed4);
+//							for(i=0;i < t1 && io1 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t1);
 						}
-						move(0,0);
-						delay_ms(5);
+						move(-speed9,-speed9);
+						delay_ms(t7);
 						move(-speed5,speed5);
+//						for(i=0;i < t2 && io1 && io3 && io4;i++)
+//							delay_ms(1);
 						delay_ms(t2);
 						f = !f;
 					}
@@ -306,15 +391,19 @@ int main(void)
 						if((!io1)||(!io2))
 						{
 							move(speed4,speed4);
+//							for(i=0;i < t4 && io1 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t4);
 						}
 						else
 						{
 							move(speed4,speed4);
+//							for(i=0;i < t1 && io1 && io3 && io4;i++)
+//								delay_ms(1);
 							delay_ms(t1);
 						}
-						move(0,0);
-						delay_ms(5);
+						move(-speed9,-speed9);
+						delay_ms(t7);
 						f = !f;
 					}
 				}
@@ -337,7 +426,7 @@ int main(void)
 				else if(!io3)  			 //左                        	  
 				{
 					move(-speed3,speed3+50);
-					for(i=0;(i<t3)&&io1&&io2;i++)
+					for(i = 0;i < t3 && io1 && io2;i++)
 						delay_ms(1); 
 					if(!io1)
 					{
@@ -351,7 +440,7 @@ int main(void)
 				else if(!io4)					//右 
 				{
 					move(speed3+50,-speed3);
-					for(i=0;(i<t3)&&io1;i++)
+					for(i = 0;i < t3 && io1 && io2;i++)
 						delay_ms(1);
 					if(!io1)
 					{
@@ -390,7 +479,7 @@ int main(void)
 				else if(!io3)  			 //左                        	  
 				{
 					move(speed3+50,-speed3);
-					for(i=0;(i<t3)&&io1&&io2;i++)
+					for(i = 0;i < t3 && io1 && io2;i++)
 						delay_ms(1); 
 					if(!io1)
 					{
@@ -404,7 +493,7 @@ int main(void)
 				else if(!io4)					//右 
 				{
 					move(-speed3,speed3+50);
-					for(i=0;(i<t3)&&io1;i++)
+					for(i = 0;i < t3 && io1 && io2;i++)
 						delay_ms(1);
 					if(!io1)
 					{

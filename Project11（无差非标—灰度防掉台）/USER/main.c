@@ -5,6 +5,7 @@
 维护人：戴镇原
 维护日期：2018.8.8
 维护日期：2018.8.18，改善建议：1、增加车载端本地灰度初始化（显示屏+按键）；2、调试边角处理；3、调试边沿处理改进（边沿后退旋转时若周围检测到敌方就立即进攻）；
+维护日期：2018.9.4，改善：1、模块化；2、边角处理；3、后退进攻；4、（按键可控）灰度初始化（9个绝对阈值（变量）、4个相对值（变量））；5、灰度归一化（灰度初始阈值均为归一化后的值）；6、（注意）检测优先级；
 描述：机器人对抗赛程序
 ******************DZY********************/
 #include "delay.h"
@@ -260,12 +261,12 @@ int main(void)
 					move(speed1,speed1);
 					f = 1;
 				}
-				else if(!io2)			   //后
+				else if(!io2)			    //后
 				{
 					move(-speed1,-speed1);
 					f = 0;
 				}
-				else if(!io3)  			 //左                        	  
+				else if(!io3)  			  //左                        	  
 				{
 					move(speed3+50,-speed3);
 					for(i = 0;i < t3 && io1 && io2;i++)
@@ -418,12 +419,12 @@ int main(void)
 					move(speed1,speed1);
 					f = 1;
 				}
-				else if(!io2)			   //后
+				else if(!io2)			    //后
 				{
 					move(-speed1,-speed1);
 					f = 0;
 				}
-				else if(!io3)  			 //左                        	  
+				else if(!io3)  			  //左                        	  
 				{
 					move(-speed3,speed3+50);
 					for(i = 0;i < t3 && io1 && io2;i++)
@@ -471,12 +472,12 @@ int main(void)
 					move(speed1,speed1);
 					f = 1;
 				}
-				else if(!io2)			   //后
+				else if(!io2)			    //后
 				{
 					move(-speed1,-speed1);
 					f = 0;
 				}
-				else if(!io3)  			 //左                        	  
+				else if(!io3)  			  //左                        	  
 				{
 					move(speed3+50,-speed3);
 					for(i = 0;i < t3 && io1 && io2;i++)

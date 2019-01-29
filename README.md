@@ -1,4 +1,4 @@
 # Platform-Robot-Competition
 Chinese Robot Competition—Platform Robot Competition
 
-Competition video:https://pan.baidu.com/s/15MjIfFnFLf5ueWESpP_cXQ
+Competition video:https://www.bilibili.com/video/av40177416
